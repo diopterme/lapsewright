@@ -1,0 +1,117 @@
+/* Decided in notes/09-ui-decisions.md §3: mac look (S1), photo on the window color (S2),
+   system accent (S3), Pretendard (S4), 14px (S5), 11px corners (S6), light/dark from macOS (D14). */
+:root {
+  --win: #ececec;
+  --panel: #f5f5f5;
+  --raised: #ffffff;
+  --text: #1d1d1f;
+  --muted: #6e6e73;
+  --faint: #a1a1a6;
+  --line: rgb(0 0 0 / 0.12);
+  --hover: rgb(0 0 0 / 0.05);
+  --box: #ffffff;
+  --box-line: rgb(0 0 0 / 0.06);
+  --control: rgb(0 0 0 / 0.06);
+  --accent: #007aff;
+  --warn: #c93400;
+  --radius: 11px;
+  color-scheme: light;
+}
+
+/* Follows System Settings › Appearance › Accent color (checked in WKWebView: system blue by default). */
+@supports (color: AccentColor) {
+  :root { --accent: AccentColor; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --win: #1e1e1e;
+    --panel: #262626;
+    --raised: #323232;
+    --text: #f5f5f7;
+    --muted: #98989d;
+    --faint: #636366;
+    --line: rgb(255 255 255 / 0.12);
+    --hover: rgb(255 255 255 / 0.06);
+    --box: #2e2e2e;
+    --box-line: rgb(255 255 255 / 0.06);
+    --control: rgb(255 255 255 / 0.1);
+    --warn: #ff9f6b;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app { height: 100%; margin: 0; overflow: hidden; }
+
+body {
+  background: var(--win);
+  color: var(--text);
+  font: 14px/1.45 "Pretendard Variable", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 4px 12px;
+}
+button:hover:not(:disabled) { background: color-mix(in srgb, var(--raised), var(--text) 6%); }
+button:disabled { color: var(--faint); }
+button.primary { background: var(--accent); border-color: transparent; color: #fff; }
+button.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--accent), #000 10%); }
+button.primary:disabled { background: var(--hover); color: var(--faint); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.num { font-variant-numeric: tabular-nums; }
+
+/* Y3: the closed menu drawn as a mac pop-up button (⌃⌄); the open list is still the native menu. */
+select {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  appearance: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 2px 24px 2px 9px;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  background: var(--control) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 12'%3E%3Cpath d='M1.5 4.5 4 2l2.5 2.5M1.5 7.5 4 10l2.5-2.5' fill='none' stroke='%238e8e93' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center / 7px 11px;
+}
+input[type="number"] {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 6px;
+  user-select: text;
+}
+input:disabled { color: var(--faint); }
+
+/* Y3: grouped boxes of "name … value" rows, as in System Settings. */
+.group { display: grid; gap: 6px; margin: 0; }
+.group > h4 { margin: 0 0 0 4px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.box { background: var(--box); border: 1px solid var(--box-line); border-radius: 10px; }
+.row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 10px; min-height: 38px; padding: 5px 12px; }
+.row + .row { border-top: 1px solid var(--line); }
+.row > :first-child { white-space: nowrap; }
+.row .value { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+/* A second line inside a row: what a value means, or why it is greyed out. */
+.row > .cap { flex-basis: 100%; margin: 0; font-size: 12px; color: var(--muted); }
+.row > .cap.warn { color: var(--warn); }
+button.mini { padding: 2px 10px; border-radius: 6px; border-color: transparent; background: var(--control); font-size: 13px; }
+button.link { border: 0; background: none; padding: 0; color: var(--accent); font-size: 12px; }
+button.link:hover:not(:disabled) { background: none; text-decoration: underline; }
+
+/* One line under a field: why a choice is greyed out (D5), or what went wrong. */
+.why { margin: 0; font-size: 12px; color: var(--muted); }
+.warn { color: var(--warn); }

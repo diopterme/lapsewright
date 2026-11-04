@@ -1,0 +1,24 @@
+[package]
+name = "lapsewright-app"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/diopterme/lapsewright"
+
+[[bin]]
+name = "lapsewright-app"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+jiff = "0.2.38"
+libc = "0.2.191"
+lapsewright-core = { version = "0.1.0", path = "../core" }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+tauri = { version = "2.12.5", features = [] }
+tauri-plugin-dialog = "2.8.3"
+tauri-plugin-window-state = "2.5.0"
+sys-locale = "0.3.2"

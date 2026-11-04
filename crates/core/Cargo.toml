@@ -1,0 +1,22 @@
+[package]
+name = "lapsewright-core"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/diopterme/lapsewright"
+
+[dependencies]
+dirs = "7.0.0"
+jiff = "0.2.38"
+little_exif = "0.6.23"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+thiserror = "2.0.21"
+ureq = { version = "3.5.0", features = ["json"] }
+
+# Only for tests/runner.rs (CARGO_BIN_EXE_fake-ffmpeg); a binary so it runs on Windows too.
+[[bin]]
+name = "fake-ffmpeg"
+path = "tests/support/fake_ffmpeg.rs"
+test = false
+doc = false

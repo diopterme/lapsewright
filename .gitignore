@@ -1,0 +1,12 @@
+/target/
+node_modules/
+/crates/app/ui/dist/
+/crates/app/gen/schemas/
+# Windows build: windows.py copies ffmpeg, its DLLs and licenses here, not kept in the repo
+/crates/app/ffmpeg/
+.DS_Store
+__pycache__/
+# Private working notes
+/notes/
+/CLAUDE.md
+/.claude/

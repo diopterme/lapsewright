@@ -1,0 +1,16 @@
+[package]
+name = "lapsewright-cli"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/diopterme/lapsewright"
+
+[[bin]]
+name = "lapsewright"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.6.7", features = ["derive"] }
+ctrlc = "3.5.2"
+jiff = "0.2.38"
+lapsewright-core = { version = "0.1.0", path = "../core" }

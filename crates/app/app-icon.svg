@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1024 1024">
+  <!-- Lapsewright: one landscape cut into five photos, each later in the day, set as a play mark.
+       Full-bleed square on purpose: macOS 26+ rounds the corners itself, and a see-through edge
+       puts the icon on a grey plate. Make the app icons with `cargo tauri icon app-icon.svg`. -->
+  <defs>
+    <!-- Sits right of center so the triangle looks centered. -->
+    <clipPath id="play"><path d="M280 240 Q280 150 358 194 L842 468 Q920 512 842 556 L358 830 Q280 874 280 784 Z"/></clipPath>
+    <path id="ridge" d="M280 874 L280 729 L446 555 L574 686 L728 512 L920 671 L920 874Z"/>
+    <clipPath id="s1"><rect x="280" y="150" width="115" height="724" rx="18"/></clipPath>
+    <clipPath id="s2"><rect x="411" y="150" width="115" height="724" rx="18"/></clipPath>
+    <clipPath id="s3"><rect x="542" y="150" width="115" height="724" rx="18"/></clipPath>
+    <clipPath id="s4"><rect x="674" y="150" width="115" height="724" rx="18"/></clipPath>
+    <clipPath id="s5"><rect x="805" y="150" width="115" height="724" rx="18"/></clipPath>
+  </defs>
+  <rect width="1024" height="1024" fill="#f3ede2"/>
+  <g clip-path="url(#play)">
+    <g clip-path="url(#s1)"><!-- noon -->
+      <rect x="280" y="150" width="640" height="724" fill="#7db6e6"/>
+      <circle cx="338" cy="295" r="37" fill="#fff6d8"/>
+      <use xlink:href="#ridge" fill="#3c5f86"/>
+    </g>
+    <g clip-path="url(#s2)"><!-- afternoon -->
+      <rect x="280" y="150" width="640" height="724" fill="#f4ab5a"/>
+      <circle cx="469" cy="376" r="37" fill="#fff0c4"/>
+      <use xlink:href="#ridge" fill="#7a3f45"/>
+    </g>
+    <g clip-path="url(#s3)"><!-- sunset -->
+      <rect x="280" y="150" width="640" height="724" fill="#ee8a4a"/>
+      <circle cx="600" cy="458" r="37" fill="#ffe0a8"/>
+      <use xlink:href="#ridge" fill="#6b3540"/>
+    </g>
+    <g clip-path="url(#s4)"><!-- dusk -->
+      <rect x="280" y="150" width="640" height="724" fill="#c7637a"/>
+      <circle cx="732" cy="539" r="37" fill="#ffd0a0"/>
+      <use xlink:href="#ridge" fill="#3f2440"/>
+    </g>
+    <g clip-path="url(#s5)"><!-- night -->
+      <rect x="280" y="150" width="640" height="724" fill="#141a3c"/>
+      <circle cx="863" cy="621" r="37" fill="#eef0ff"/>
+      <use xlink:href="#ridge" fill="#070a1c"/>
+    </g>
+  </g>
+</svg>
