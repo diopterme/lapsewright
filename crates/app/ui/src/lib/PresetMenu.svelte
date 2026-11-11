@@ -9,6 +9,8 @@
 
   /** Menu values that are actions, not presets (R3, R4, R6). Preset ids never start with `@`. */
   const NEW = "@new";
+  const SAVE = "@save";
+  const REVERT = "@revert";
   const RENAME = "@rename";
   const DELETE = "@delete";
   const RESTORE = "@restore";
@@ -43,6 +45,8 @@
     // An action is not a pick: the menu goes back to the preset in use.
     e.currentTarget.value = session.preset ?? "";
     if (value === NEW) naming = { renaming: null, name: "", problem: null };
+    else if (value === SAVE && current) save(current);
+    else if (value === REVERT && current?.settings) run(() => onchange({ ...session, settings: current.settings! }));
     else if (value === RENAME && current) naming = { renaming: current, name: current.name, problem: null };
     else if (value === DELETE && current) remove(current);
     else if (value === RESTORE) restore();
@@ -112,7 +116,8 @@
   <div class="row">
     <span>{t("프리셋", "Preset")}</span>
     <span class="value">
-      {#if isChanged && current}<span class="dot" title={t("바꾼 값이 저장 안 됨", "Changes not saved")}></span>{/if}
+      <!-- The dot's place stays so the menu doesn't move. -->
+      <span class="dot" class:off={!isChanged} title={isChanged ? t("바꾼 값이 저장 안 됨", "Changes not saved") : undefined}></span>
       <!-- R1: the native menu. -->
       <select value={session.preset ?? ""} onchange={onmenu} aria-label={t("프리셋", "Preset")}>
         {#if !session.preset}<option value="" disabled>{t("프리셋 안 고름", "No Preset")}</option>{/if}
@@ -120,6 +125,10 @@
           <option value={p.id} disabled={!p.settings} title={p.error ?? undefined}>{p.settings ? p.name : t(`${p.name} (못 읽음)`, `${p.name} (can’t read)`)}</option>
         {/each}
         <option disabled>──────────</option>
+        {#if current}
+          <option value={SAVE} disabled={!isChanged}>{t(`"${current.name}" 에 지금 값 저장`, `Save Changes to "${current.name}"`)}</option>
+          <option value={REVERT} disabled={!isChanged}>{t(`"${current.name}" 값으로 되돌리기`, `Revert to "${current.name}"`)}</option>
+        {/if}
         <option value={NEW}>{t("새로 저장…", "Save as New…")}</option>
         {#if current}
           <option value={RENAME}>{t(`"${current.name}" 이름 바꾸기…`, `Rename "${current.name}"…`)}</option>
@@ -129,14 +138,6 @@
         <option value={RESTORE}>{t("기본 프리셋 되살리기", "Restore Built-in Presets")}</option>
       </select>
     </span>
-    <!-- R2, Y6: only this row shows that values changed. -->
-    {#if isChanged && current}
-      <p class="cap">
-        {t("바꾼 값 저장 안 됨", "Changes not saved")} ·
-        <button class="link" onclick={() => save(current)}>{t("저장", "Save")}</button> ·
-        <button class="link" onclick={() => run(() => onchange({ ...session, settings: current.settings! }))}>{t("되돌리기", "Revert")}</button>
-      </p>
-    {/if}
     {#if error}<p class="cap warn">{error}</p>{/if}
   </div>
 </div>
@@ -163,6 +164,7 @@
 
 <style>
   .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none; }
+  .dot.off { visibility: hidden; }
   .value { flex: 1; justify-content: flex-end; }
   select { min-width: 0; }
   dialog { border: 1px solid var(--line); border-radius: var(--radius); background: var(--raised); color: var(--text); padding: 18px; width: 300px; box-shadow: 0 12px 40px rgb(0 0 0 / 0.3); }

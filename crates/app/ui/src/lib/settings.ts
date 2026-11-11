@@ -11,6 +11,7 @@ export const USES: { codec: Codec; label: string; title: string }[] = [
 
 /** C4 */
 export const SIZES: [number, number][] = [
+  [7680, 4320],
   [4096, 2304],
   [3840, 2160],
   [2560, 1440],
