@@ -64,10 +64,12 @@ cargo test --workspace
 
 ### Package
 
-**macOS:** `python3 crates/app/package/mac.py` builds the `.dmg`. It copies Homebrew's ffmpeg and its libraries into the app, writes their license notices into the app, then signs and notarizes it.
+Both platforms build FFmpeg from source with `crates/app/package/ffmpeg.py`, turning on only the libraries the app uses: x264, x265, libjxl and zimg.
+
+**macOS:** `brew install pkgconf x264 x265 jpeg-xl zimg`, then `python3 crates/app/package/mac.py` builds the `.dmg`. It puts FFmpeg and those Homebrew libraries into the app, writes their license notices into the app, then signs and notarizes it.
 `python3 crates/app/package/licenses.py` collects the source code of those parts for the release page.
 
-**Windows:** in an [MSYS2](https://www.msys2.org) UCRT64 shell, run `python crates/app/package/windows.py`. It copies MSYS2's ffmpeg, its DLLs and license notices into `crates/app/ffmpeg/` and collects their source code.
+**Windows:** in an [MSYS2](https://www.msys2.org) UCRT64 shell, run `python crates/app/package/windows.py` (the MSYS2 packages it needs are listed at the top of the file). It copies FFmpeg, its DLLs and license notices into `crates/app/ffmpeg/` and collects their source code.
 Then run `cargo tauri build` in `crates/app`.
 
 ## Command line

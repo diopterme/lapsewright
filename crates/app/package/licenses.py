@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""앱에 같이 넣는 Homebrew ffmpeg 와 그 부품들의 조건(라이선스)과 원본 코드.
+"""앱에 같이 넣는 ffmpeg(직접 빌드, ffmpeg.py) 와 그 Homebrew 부품들의 조건(라이선스)과 원본 코드.
 
     python3 crates/app/package/licenses.py      # 원본 코드 모으기 → GitHub Releases 에 올릴 tar
 
 ffmpeg(GPL)를 나눠 주면 그 원본 코드도 같은 곳에 둬야 함 (notes/09 §9).
 mac.py 는 write() 로 앱 안 Contents/Resources/licenses 에 조건 글을 넣음.
 """
+import hashlib
 import json
 import os
 import re
@@ -15,17 +16,22 @@ import sys
 from pathlib import Path
 
 import crates
+import ffmpeg as ffmpeg_build
 import mac
 
 LICENSE_FILE = re.compile(r"^(COPYING|LICEN[CS]E|COPYRIGHT|NOTICE|.*GPL.*\.txt$)", re.I)
 CELLAR = re.compile(r"/opt/homebrew/Cellar/([^/]+)/([^/]+)/")
 
 
+def built():
+    """(직접 빌드한 ffmpeg, 그 원본 tar.xz). 이미 빌드했으면 바로 돌려줌"""
+    return ffmpeg_build.build(mac.FFMPEG_WORK)
+
+
 def bundled():
-    """{formula: Cellar 의 버전 폴더}: ffmpeg 와 앱에 같이 넣는 dylib 가 나온 brew 패키지"""
-    ffmpeg = Path(os.path.realpath(mac.BREW / "bin/ffmpeg"))
+    """{formula: Cellar 의 버전 폴더}: ffmpeg 가 부르는 dylib(앱에 같이 넣는 것)가 나온 brew 패키지"""
     found = {}
-    for p in [ffmpeg, *mac.closure([ffmpeg])]:
+    for p in mac.closure([built()[0]]):
         m = CELLAR.match(str(p))
         if not m:
             sys.exit(f"brew 패키지가 아님: {p}")
@@ -51,15 +57,16 @@ def check_current(found, formulae):
 
 
 def notice(found, formulae):
-    ffmpeg = mac.out(mac.BREW / "bin/ffmpeg", "-hide_banner", "-buildconf")
+    conf = mac.out(built()[0], "-hide_banner", "-buildconf")
     rows = [f"{n:<16} {v:<12} {formulae[n].get('license') or '?':<40} {formulae[n]['homepage']}" for n, v in found.items()]
-    return f"""Lapsewright bundles FFmpeg and the libraries it uses, as built by Homebrew for macOS (arm64).
+    return f"""Lapsewright bundles FFmpeg, built from the official source by crates/app/package/ffmpeg.py,
+and the libraries it uses, as built by Homebrew for macOS (arm64).
 Each part keeps its own license; license texts are in the folders next to this file.
-The source code of every part, with the Homebrew build recipes (.rb), patches and Rust crates, is published
+The source code of every part, with our FFmpeg build script, the Homebrew build recipes (.rb) and patches, is published
 next to the app on https://github.com/diopterme/lapsewright/releases (ffmpeg-sources-macos).
 
-FFmpeg {found['ffmpeg-full']} — https://ffmpeg.org/ — GPL-3.0-or-later as configured below.
-{ffmpeg}
+FFmpeg {ffmpeg_build.VERSION} — https://ffmpeg.org/ — GPL-3.0-or-later as configured below.
+{conf}
 {'name':<16} {'version':<12} {'license':<40} homepage
 """ + "\n".join(rows) + "\n"
 
@@ -73,6 +80,9 @@ def write(dest):
     dest.mkdir(parents=True)
     shutil.copy2(mac.ROOT / "LICENSE", dest / "Lapsewright-LICENSE.txt")
     (dest / "NOTICE.txt").write_text(notice(found, formulae))
+    (dest / "ffmpeg").mkdir()
+    for f in ffmpeg_build.licenses(built()[0]):
+        shutil.copy2(f, dest / "ffmpeg" / f.name)
     for name, version in found.items():
         cellar = mac.BREW / "Cellar" / name / version
         files = [f for f in cellar.iterdir() if f.is_file() and LICENSE_FILE.match(f.name)]
@@ -102,10 +112,21 @@ def sources():
     # cache 는 남김: 받다 끊기면 다시 돌릴 때 받은 것은 건너뜀
     shutil.rmtree(top, ignore_errors=True)
     found = write(top / "licenses")
-    cache = work / "cache"
+    # 부품 목록마다 다른 캐시: 캐시를 통째로 묶으니, 예전에 받은 다른 부품 원본이 섞이면 안 됨
+    key = hashlib.sha256(" ".join(f"{n}-{v}" for n, v in found.items()).encode()).hexdigest()[:12]
+    cache = work / f"cache-{key}"
     env = {**os.environ, "HOMEBREW_CACHE": str(cache), "HOMEBREW_NO_AUTO_UPDATE": "1"}
     subprocess.run(["brew", "fetch", "--build-from-source", "--formula", *found], check=True, env=env)
     shutil.copytree(cache / "downloads", top / "downloads", copy_function=os.link, ignore=shutil.ignore_patterns("*.incomplete"))
+    # git 으로 받는 부품(x264)은 downloads 가 아니라 cache/<이름>--git 에 받음 → 빌드한 시점의 코드만 tar 로
+    for name, f in info(found).items():
+        stable = f["urls"]["stable"]
+        if stable["url"].endswith(".git"):
+            ref = stable["revision"] or stable["tag"]
+            mac.sh("git", "-C", cache / f"{name}--git", "archive", "--format=tar", f"--prefix={name}/", "-o", top / "downloads" / f"{name}-{ref}.tar", ref)
+    (top / "ffmpeg").mkdir()
+    for f in ffmpeg_build.sources(built()[1]):
+        shutil.copy2(f, top / "ffmpeg" / f.name)
     # Rust 로 빌드하는 부품(rav1e): 빌드 때 crates.io 에서 받는 crate 원본도
     for name, f in info(found).items():
         if "rust" in f["build_dependencies"]:

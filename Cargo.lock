@@ -1851,7 +1851,7 @@ dependencies = [
 
 [[package]]
 name = "lapsewright-app"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "jiff",
  "lapsewright-core",
@@ -1867,7 +1867,7 @@ dependencies = [
 
 [[package]]
 name = "lapsewright-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap",
  "ctrlc",
@@ -1877,7 +1877,7 @@ dependencies = [
 
 [[package]]
 name = "lapsewright-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dirs",
  "jiff",

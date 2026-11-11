@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""맥 설치 파일(.dmg): 앱 빌드 → Homebrew ffmpeg 를 앱 안에 → Developer ID 서명 → dmg → 애플 공증.
+"""맥 설치 파일(.dmg): 앱 빌드 → ffmpeg 빌드(ffmpeg.py, 부품은 Homebrew 것) 를 앱 안에 → Developer ID 서명 → dmg → 애플 공증.
 
     python3 crates/app/package/mac.py [--no-build] [--no-notarize]
 
@@ -15,9 +15,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+import ffmpeg as ffmpeg_build
+
 ROOT = Path(__file__).resolve().parents[3]
 TAURI = ROOT / "crates/app"
 APP = ROOT / "target/release/bundle/macos/Lapsewright.app"
+FFMPEG_WORK = ROOT / "target/release/ffmpeg-build"
 BREW = Path("/opt/homebrew")
 SYSTEM = ("/usr/lib/", "/System/")
 IDENTITY = "Developer ID Application: yeongsu son (H355569U4M)"
@@ -83,7 +86,7 @@ def fill(app):
     fw = c / "Frameworks"
     shutil.rmtree(fw, ignore_errors=True)
     fw.mkdir(parents=True)
-    src = Path(os.path.realpath(BREW / "bin/ffmpeg"))
+    src, _ = ffmpeg_build.build(FFMPEG_WORK)
     dst = c / "MacOS/ffmpeg"
     shutil.copy2(src, dst)
     for lib in closure([src]):

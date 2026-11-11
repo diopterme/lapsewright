@@ -64,10 +64,12 @@ cargo test --workspace
 
 ### 배포 파일 만들기
 
-**맥:** `python3 crates/app/package/mac.py` 가 `.dmg` 를 만듭니다. Homebrew 의 ffmpeg 와 부품을 앱 안에 넣고, 사용 조건 글을 넣은 뒤 서명·공증을 합니다.
+맥과 윈도우 모두 `crates/app/package/ffmpeg.py` 로 FFmpeg 를 원본에서 빌드합니다. 바깥 부품은 앱이 쓰는 x264, x265, libjxl, zimg 만 켭니다.
+
+**맥:** `brew install pkgconf x264 x265 jpeg-xl zimg` 뒤 `python3 crates/app/package/mac.py` 가 `.dmg` 를 만듭니다. FFmpeg 와 Homebrew 부품을 앱 안에 넣고, 사용 조건 글을 넣은 뒤 서명·공증을 합니다.
 `python3 crates/app/package/licenses.py` 는 그 부품들의 원본 코드를 모아 Releases 에 올릴 파일로 만듭니다.
 
-**윈도우:** [MSYS2](https://www.msys2.org) UCRT64 셸에서 `python crates/app/package/windows.py` 를 실행합니다. MSYS2 의 ffmpeg 와 DLL, 조건 글을 `crates/app/ffmpeg/` 에 모으고 원본 코드도 모읍니다.
+**윈도우:** [MSYS2](https://www.msys2.org) UCRT64 셸에서 `python crates/app/package/windows.py` 를 실행합니다 (필요한 MSYS2 패키지는 파일 맨 위에 적혀 있습니다). FFmpeg 와 DLL, 조건 글을 `crates/app/ffmpeg/` 에 모으고 원본 코드도 모읍니다.
 그다음 `crates/app` 에서 `cargo tauri build` 를 합니다.
 
 ## 명령줄
