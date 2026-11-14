@@ -21,6 +21,8 @@ ROOT = Path(__file__).resolve().parents[3]
 TAURI = ROOT / "crates/app"
 APP = ROOT / "target/release/bundle/macos/Lapsewright.app"
 FFMPEG_WORK = ROOT / "target/release/ffmpeg-build"
+# Finished files only (dmg, setup.exe, source tars); everything else stays in target/ (not synced).
+RELEASE = ROOT / "release"
 BREW = Path("/opt/homebrew")
 SYSTEM = ("/usr/lib/", "/System/")
 IDENTITY = "Developer ID Application: yeongsu son (H355569U4M)"
@@ -124,8 +126,9 @@ def check(app):
 
 def dmg(app):
     version = json.loads((TAURI / "tauri.conf.json").read_text())["version"]
-    dest = ROOT / f"target/release/bundle/dmg/Lapsewright_{version}_aarch64.dmg"
-    stage = dest.parent / "stage"
+    RELEASE.mkdir(exist_ok=True)
+    dest = RELEASE / f"Lapsewright_{version}_aarch64.dmg"
+    stage = ROOT / "target/release/bundle/dmg-stage"
     shutil.rmtree(stage, ignore_errors=True)
     stage.mkdir(parents=True)
     sh("ditto", app, stage / app.name)
@@ -159,5 +162,8 @@ if __name__ == "__main__":
     fill(APP)
     check(APP)
     image = dmg(APP)
+    # The app itself next to the dmg, to run without mounting it.
+    shutil.rmtree(RELEASE / APP.name, ignore_errors=True)
+    sh("ditto", APP, RELEASE / APP.name)
     if "--no-notarize" not in sys.argv:
         notarize(image)

@@ -65,7 +65,7 @@
   <ol bind:this={list}>
     {#each queue.items as i (i.id)}
       <li data-row class={i.status}>
-        <div class="row">
+        <div class="line">
           {#if i.status === "waiting"}
             <span class="grip" role="button" tabindex="-1" aria-label={t("끌어서 순서 바꾸기", "Drag to reorder")} onpointerdown={(e) => grab(e, i.id)}>≡</span>
           {/if}
@@ -73,6 +73,9 @@
             <b>{i.status === "waiting" ? `${i.name}.${i.extension}` : fileName(i.file) || i.name}</b>
             <small>{i.status === "waiting" ? t(`${i.label} · 있으면 _2`, `${i.label} · _2 if taken`) : i.label}</small>
           </span>
+        </div>
+        <!-- T3: name and description get the whole first line; status and button go below. -->
+        <div class="line">
           <span class="st num" title={i.message ?? undefined}>{status(i)}</span>
           {#if i.status === "running"}
             <button onclick={() => queue.askCancel()}>{t("취소", "Cancel")}</button>
@@ -116,12 +119,13 @@
   .empty { margin: 0; color: var(--muted); font-size: 13px; }
   ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
   li { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 8px 10px; border-radius: 8px; background: var(--raised); border: 1px solid var(--line); }
-  .row { display: flex; align-items: center; gap: 8px; }
+  /* Not .row: the app-wide name-value row (app.css) would keep the name on one line. */
+  .line { display: flex; align-items: center; gap: 8px; }
   .grip { cursor: grab; color: var(--muted); padding: 0 2px; touch-action: none; }
   .what { flex: 1; min-width: 0; display: grid; }
-  .what b, .what small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .what b, .what small { overflow-wrap: anywhere; }
   .what small { color: var(--muted); font-size: 11px; }
-  .st { font-size: 12px; white-space: nowrap; max-width: 45%; overflow: hidden; text-overflow: ellipsis; }
+  .st { flex: 1; min-width: 0; font-size: 12px; overflow-wrap: anywhere; }
   .failed .st { color: var(--warn); }
   .done .st { color: var(--muted); }
   .cancelled { opacity: 0.75; }

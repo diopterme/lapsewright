@@ -22,6 +22,6 @@
   .seg { display: flex; padding: 2px; gap: 2px; border-radius: 8px; background: var(--hover); }
   button { flex: 1; border: 0; border-radius: 6px; padding: 3px 9px; background: none; font-size: 13px; white-space: nowrap; }
   button:hover:not(:disabled):not(.on) { background: var(--hover); }
-  /* Y5: the picked one in the accent color. */
-  .on, .on:hover { background: var(--accent); color: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.18); font-weight: 600; }
+  /* T1 (was Y5: accent) */
+  .on, .on:hover { background: var(--pick); box-shadow: 0 1px 2px rgb(0 0 0 / 0.18); font-weight: 600; }
 </style>

@@ -279,7 +279,22 @@
 
 <style>
   .preview { height: 100%; display: grid; grid-template-rows: 1fr auto; min-width: 0; min-height: 0; }
-  .stage { position: relative; display: grid; place-items: center; overflow: hidden; min-height: 0; }
+  /* T2: dark in light mode too, as in photo apps; the dimmed area outside the crop matches it. */
+  .stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    min-height: 0;
+    background: #1b1b1b;
+    color: #f5f5f7;
+    color-scheme: dark;
+    --text: #f5f5f7;
+    --muted: #98989d;
+    --line: rgb(255 255 255 / 0.12);
+    --hover: rgb(255 255 255 / 0.06);
+    --warn: #ff9f6b;
+  }
   .frame { position: relative; overflow: hidden; border-radius: 4px; }
   img { display: block; width: 100%; height: 100%; }
   .crop {

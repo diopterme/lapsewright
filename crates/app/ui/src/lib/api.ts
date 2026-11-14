@@ -114,6 +114,7 @@ export const setPrefs = (prefs: Prefs) => invoke<void>("set_prefs", { prefs });
 export const copyrightText = (holder: string) => invoke<string>("copyright_text", { holder });
 export const clearRecent = () => invoke<void>("clear_recent");
 export const openSettings = () => invoke<void>("open_settings");
+export const fitHeight = (height: number) => invoke<void>("fit_height", { height });
 export const power = (power: Power) => invoke<void>("power", { power });
 /** Settings › About; the backend opens only our GitHub and ffmpeg.org pages. */
 export const openLink = (url: string) => invoke<void>("open_link", { url });

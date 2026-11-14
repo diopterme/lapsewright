@@ -28,7 +28,7 @@ use tauri::menu::Menu;
 #[cfg(target_os = "macos")]
 use tauri::menu::{MenuItem, PredefinedMenuItem};
 use tauri::window::{ProgressBarState, ProgressBarStatus};
-use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WebviewUrl, WebviewWindowBuilder, Window, WindowEvent, Wry};
+use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WebviewUrl, WebviewWindow, WebviewWindowBuilder, Window, WindowEvent, Wry};
 
 const QUIT_MENU: &str = "quit";
 const SETTINGS_MENU: &str = "settings";
@@ -342,6 +342,34 @@ fn open_settings(handle: AppHandle) -> Result<(), String> {
     show_settings(&handle).map_err(|e| e.to_string())
 }
 
+/// W5: the settings window as tall as its pane. On macOS the top edge stays put and the change
+/// is animated, as in mac settings windows; a plain resize there would move the top instead.
+#[tauri::command]
+fn fit_height(window: WebviewWindow, height: f64) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        let ns_window = window.ns_window().map_err(|e| e.to_string())? as usize;
+        window
+            .run_on_main_thread(move || {
+                // SAFETY: tao's NSWindow, alive as long as the window, used on the main thread.
+                let ns_window = unsafe { &*(ns_window as *const objc2_app_kit::NSWindow) };
+                let mut frame = ns_window.frame();
+                // The title bar is drawn over the content view; the page gets only the part below it.
+                let grow = height - ns_window.contentLayoutRect().size.height;
+                frame.origin.y -= grow;
+                frame.size.height += grow;
+                ns_window.setFrame_display_animate(frame, true, true);
+            })
+            .map_err(|e| e.to_string())
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let scale = window.scale_factor().map_err(|e| e.to_string())?;
+        let width = window.inner_size().map_err(|e| e.to_string())?.to_logical::<f64>(scale).width;
+        window.set_size(tauri::LogicalSize::new(width, height)).map_err(|e| e.to_string())
+    }
+}
+
 #[tauri::command(async)]
 fn power(power: Power) -> Result<(), String> {
     finish::power(power)
@@ -354,7 +382,8 @@ fn show_settings(handle: &AppHandle) -> tauri::Result<()> {
     }
     WebviewWindowBuilder::new(handle, SETTINGS_WINDOW, WebviewUrl::App("index.html".into()))
         .title(t("설정", "Settings"))
-        .inner_size(480.0, 460.0)
+        // W5: about the [General] pane plus the title bar, so it opens at the right height.
+        .inner_size(480.0, 361.0)
         .resizable(false)
         .minimizable(false)
         .center()
@@ -482,6 +511,7 @@ fn main() {
             copyright_text,
             clear_recent,
             open_settings,
+            fit_height,
             power,
         ])
         .build(tauri::generate_context!())

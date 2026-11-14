@@ -132,7 +132,8 @@ def sources():
         if "rust" in f["build_dependencies"]:
             src = mac.out("brew", "--cache", "--build-from-source", "--formula", name).strip()
             crates.vendor(cache / "downloads" / Path(src).name, top / "crates")
-    tar = work / f"{top.name}.tar"
+    mac.RELEASE.mkdir(exist_ok=True)
+    tar = mac.RELEASE / f"{top.name}.tar"
     mac.sh("tar", "-cf", tar, "-C", work, top.name)
     print(f"{tar} ({tar.stat().st_size / 1e6:.0f}MB) → Releases 에 앱과 같이 올림")
 

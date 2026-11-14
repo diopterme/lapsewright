@@ -26,6 +26,7 @@ TAURI = ROOT / "crates/app"
 DEST = TAURI / "ffmpeg"
 WORK = ROOT / "target/release/ffmpeg-sources"
 FFMPEG_WORK = ROOT / "target/release/ffmpeg-build"
+RELEASE = ROOT / "release"
 PREFIX = "mingw-w64-ucrt-x86_64-"
 MIRROR = "https://repo.msys2.org/mingw/sources/"
 LICENSE_FILE = re.compile(r"^(COPYING|LICEN[CS]E|COPYRIGHT|NOTICE|.*GPL.*\.txt$)", re.I)
@@ -226,7 +227,8 @@ def main():
 
     version = json.loads((TAURI / "tauri.conf.json").read_text())["version"]
     top = f"lapsewright-{version}-ffmpeg-sources-windows"
-    tar = WORK / f"{top}.tar"
+    RELEASE.mkdir(exist_ok=True)
+    tar = RELEASE / f"{top}.tar"
     write_tar(tar, top, DEST / "licenses", ffmpeg_build.sources(ffmpeg_src), sorted(set(sources.values())), vendored)
     shutil.rmtree(WORK / "tmp", ignore_errors=True)
     print(f"{DEST}: ffmpeg.exe + DLL {len(libs)}개 + licenses (부품 {len(found)}개)")

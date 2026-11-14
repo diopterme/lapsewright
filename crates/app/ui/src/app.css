@@ -13,6 +13,8 @@
   --box-line: rgb(0 0 0 / 0.06);
   --control: rgb(0 0 0 / 0.06);
   --accent: #007aff;
+  /* T1: the picked choice is lifted, not blue; blue is only for [Start] and switches that are on. */
+  --pick: #ffffff;
   --warn: #c93400;
   --radius: 11px;
   color-scheme: light;
@@ -36,6 +38,7 @@
     --box: #2e2e2e;
     --box-line: rgb(255 255 255 / 0.06);
     --control: rgb(255 255 255 / 0.1);
+    --pick: #5b5b60;
     --warn: #ff9f6b;
     color-scheme: dark;
   }

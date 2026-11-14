@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
   import { getCurrentWindow } from "@tauri-apps/api/window";
-  import { clearRecent, copyrightText, loadPrefs, openLink, setPrefs, type Power, type Prefs } from "./lib/api";
+  import appIcon from "../../icons/128x128@2x.png?inline";
+  import { clearRecent, copyrightText, fitHeight, loadPrefs, openLink, setPrefs, type Power, type Prefs } from "./lib/api";
   import { t } from "./lib/i18n";
   import Segmented from "./lib/Segmented.svelte";
 
@@ -30,6 +31,12 @@
   $effect(() => {
     const label = TABS.find((t) => t.value === tab)?.label ?? t("설정", "Settings");
     getCurrentWindow().setTitle(label).catch((e) => (error = String(e)));
+  });
+  /** W5: the window is as tall as the pane, as in mac settings windows. */
+  let height = $state(0);
+  $effect(() => {
+    // Only on a new height, and not before the values arrive: the window would shrink to the tab bar and grow back.
+    if (height && untrack(() => prefs || tab === "about" || error)) fitHeight(height).catch((e) => (error = String(e)));
   });
   let prefs = $state<Prefs | null>(null);
   /** M1: what the video gets. */
@@ -77,13 +84,14 @@
   }
 </script>
 
-<div class="window">
+<div class="window" bind:offsetHeight={height}>
   <!-- Y11: icon tabs on top. -->
   <div class="icons" role="tablist" aria-label={t("설정", "Settings")}>
     <button role="tab" aria-selected={tab === "general"} class:on={tab === "general"} onclick={() => (tab = "general")}>
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="3.2" /><circle cx="12" cy="12" r="6.5" />
-        <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" />
+        <!-- G1 -->
+        <path d="M19.25 10.53 L21.52 10.76 L21.52 13.24 L19.25 13.47 L18.17 16.09 L19.61 17.85 L17.85 19.61 L16.09 18.17 L13.47 19.25 L13.24 21.52 L10.76 21.52 L10.53 19.25 L7.91 18.17 L6.15 19.61 L4.39 17.85 L5.83 16.09 L4.75 13.47 L2.48 13.24 L2.48 10.76 L4.75 10.53 L5.83 7.91 L4.39 6.15 L6.15 4.39 L7.91 5.83 L10.53 4.75 L10.76 2.48 L13.24 2.48 L13.47 4.75 L16.09 5.83 L17.85 4.39 L19.61 6.15 L18.17 7.91 Z" />
+        <circle cx="12" cy="12" r="3.2" />
       </svg>
       {TABS[0].label}
     </button>
@@ -100,6 +108,8 @@
   <div class="body">
     {#if tab === "about"}
       <section class="about">
+        <!-- W7 -->
+        <img class="icon" src={appIcon} alt="" width="72" height="72" />
         <h3>Lapsewright</h3>
         <p class="why">{t("버전", "Version")} {version} · diopterme</p>
         <p>{t("사진 폴더를 타임랩스 영상으로.", "Turns a folder of photos into a timelapse video.")}</p>
@@ -171,8 +181,8 @@
         <section class="group">
           <h4>{t("대기열이 다 끝나면 (마지막 영상)", "When the Queue Is Done (Last Video)")}</h4>
           <div class="box">
-            <label class="row"><span>{t("Finder 에서 보기", "Show in Finder")}</span><input type="checkbox" checked={prefs.reveal} onchange={(e) => change({ reveal: e.currentTarget.checked })} /></label>
-            <label class="row"><span>{t("영상 바로 열기", "Open the video")}</span><input type="checkbox" checked={prefs.open} onchange={(e) => change({ open: e.currentTarget.checked })} /></label>
+            <label class="row"><span>{t("Finder 에서 보기", "Show in Finder")}</span><input type="checkbox" role="switch" checked={prefs.reveal} onchange={(e) => change({ reveal: e.currentTarget.checked })} /></label>
+            <label class="row"><span>{t("영상 바로 열기", "Open the video")}</span><input type="checkbox" role="switch" checked={prefs.open} onchange={(e) => change({ open: e.currentTarget.checked })} /></label>
           </div>
         </section>
         <section class="group">
@@ -193,17 +203,26 @@
 </div>
 
 <style>
-  .window { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--panel); }
+  .window { display: grid; background: var(--panel); }
   .icons { display: flex; justify-content: center; gap: 4px; padding: 8px 0; border-bottom: 1px solid var(--line); }
   .icons button { display: grid; justify-items: center; gap: 1px; border: 0; background: none; padding: 4px 12px; border-radius: 7px; font-size: 11px; color: var(--muted); }
   .icons button:hover:not(:disabled) { background: var(--hover); }
   .icons .on, .icons .on:hover:not(:disabled) { background: var(--control); color: var(--text); }
-  svg { width: 24px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; }
-  .on svg { stroke: var(--accent); }
-  .body { display: flex; flex-direction: column; gap: 16px; padding: 16px 20px 20px; overflow-y: auto; }
+  svg { width: 24px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+  .body { display: flex; flex-direction: column; gap: 16px; padding: 16px 20px 20px; }
   .group .why { margin: 0 4px; }
   input:not([type]) { width: 220px; font: inherit; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--win); color: var(--text); user-select: text; }
+  /* G2: grey read as greyed out in light mode. */
+  @media (prefers-color-scheme: light) {
+    input:not([type]) { background: #fff; border-color: rgb(0 0 0 / 0.15); }
+  }
+  /* W6: a mac switch. */
+  input[type="checkbox"] { appearance: none; position: relative; flex: none; width: 32px; height: 18px; margin: 0; border-radius: 9px; background: var(--control); box-shadow: inset 0 0 0 1px var(--line); transition: background 0.15s; }
+  input[type="checkbox"]::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.3); transition: left 0.15s; }
+  input[type="checkbox"]:checked { background: var(--accent); box-shadow: none; }
+  input[type="checkbox"]:checked::after { left: 16px; }
   .about { display: grid; justify-items: center; gap: 4px; text-align: center; }
+  .about .icon { margin-bottom: 4px; border-radius: 16px; box-shadow: 0 2px 8px rgb(0 0 0 / 0.35); }
   .about h3 { margin: 0; font-size: 18px; }
   .about p { margin: 0; }
   .links { display: flex; gap: 8px; margin-top: 6px; }

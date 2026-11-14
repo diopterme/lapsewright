@@ -266,10 +266,9 @@
   .tabs { display: flex; gap: 2px; margin: 10px 16px 0; padding: 2px; border-radius: 8px; background: var(--hover); }
   .tabs button { flex: 1; border: 0; border-radius: 6px; padding: 3px 4px; background: none; font-size: 13px; }
   .tabs button:hover:not(.on) { background: var(--hover); }
-  /* Y5 */
-  .tabs .on, .tabs .on:hover { background: var(--accent); color: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.18); font-weight: 600; }
+  /* T1 (was Y5: accent) */
+  .tabs .on, .tabs .on:hover { background: var(--pick); box-shadow: 0 1px 2px rgb(0 0 0 / 0.18); font-weight: 600; }
   .count { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; }
-  .on .count { background: #fff; color: var(--accent); }
   .tab-body { min-height: 0; }
   .make { margin: 0 16px 16px; padding: 10px 12px; border-radius: 10px; background: var(--box); border: 1px solid var(--box-line); display: grid; gap: 1px; }
   .make small { font-size: 11px; font-weight: 600; color: var(--muted); }

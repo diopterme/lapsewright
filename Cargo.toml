@@ -4,7 +4,7 @@ members = ["crates/*"]
 
 # 버전은 여기와 crates/app/tauri.conf.json 두 곳 (배포 스크립트는 tauri.conf.json 을 읽음)
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/diopterme/lapsewright"

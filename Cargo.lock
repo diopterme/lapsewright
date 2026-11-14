@@ -1851,11 +1851,12 @@ dependencies = [
 
 [[package]]
 name = "lapsewright-app"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "jiff",
  "lapsewright-core",
  "libc",
+ "objc2-app-kit",
  "serde",
  "serde_json",
  "sys-locale",
@@ -1867,7 +1868,7 @@ dependencies = [
 
 [[package]]
 name = "lapsewright-cli"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "clap",
  "ctrlc",
@@ -1877,7 +1878,7 @@ dependencies = [
 
 [[package]]
 name = "lapsewright-core"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "dirs",
  "jiff",
